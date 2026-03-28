@@ -1,4 +1,4 @@
-"""Flask server for the Emotion Detector application."""
+"""Flask server for the Emotion Detector application (with error handling)."""
 from flask import Flask, render_template, request
 from EmotionDetection.emotion_detection import emotion_detector
 
@@ -11,6 +11,10 @@ def sent_detector():
     text_to_detect = request.args.get('textToAnalyze')
 
     response = emotion_detector(text_to_detect)
+
+    # Handle blank / invalid input
+    if response['dominant_emotion'] is None:
+        return "Invalid text! Please try again!"
 
     anger   = response['anger']
     disgust = response['disgust']

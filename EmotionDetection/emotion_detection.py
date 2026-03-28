@@ -4,8 +4,8 @@ import json
 
 def emotion_detector(text_to_analyze):
     """
-    Calls Watson NLP Emotion endpoint and returns a formatted dictionary
-    containing individual emotion scores and the dominant emotion.
+    Calls Watson NLP Emotion endpoint.
+    Returns None values for all fields if the input is blank (status 400).
     """
     url = (
         'https://sn-watson-emotion.labs.skills.network/v1/'
@@ -17,9 +17,19 @@ def emotion_detector(text_to_analyze):
     input_json = {"raw_document": {"text": text_to_analyze}}
 
     response = requests.post(url, json=input_json, headers=headers)
-    formatted_response = json.loads(response.text)
 
-    # Extract individual scores
+    # Handle blank / invalid input
+    if response.status_code == 400:
+        return {
+            'anger':            None,
+            'disgust':          None,
+            'fear':             None,
+            'joy':              None,
+            'sadness':          None,
+            'dominant_emotion': None
+        }
+
+    formatted_response = json.loads(response.text)
     emotions = formatted_response['emotionPredictions'][0]['emotion']
 
     anger_score   = emotions['anger']
@@ -28,7 +38,6 @@ def emotion_detector(text_to_analyze):
     joy_score     = emotions['joy']
     sadness_score = emotions['sadness']
 
-    # Determine the dominant emotion
     emotion_scores = {
         'anger':   anger_score,
         'disgust': disgust_score,
